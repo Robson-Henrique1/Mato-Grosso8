@@ -1,0 +1,40 @@
+CRITICAL - 2024-05-08 20:01:51 --> Namespace declaration statement has to be the very first statement or after any declare call in the script
+in APPPATH\Models\Usuario_Model.php on line 4.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+ERROR - 2024-05-08 20:03:43 --> Error connecting to the database: Access denied for user ''@'localhost' (using password: NO)
+CRITICAL - 2024-05-08 20:03:43 --> Unable to connect to the database.
+Main connection [MySQLi]: Access denied for user ''@'localhost' (using password: NO)
+in SYSTEMPATH\Database\BaseConnection.php on line 416.
+ 1 SYSTEMPATH\Database\BaseConnection.php(586): CodeIgniter\Database\BaseConnection->initialize()
+ 2 SYSTEMPATH\Database\BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query('SELECT *
+FROM `usuario`
+WHERE `nome` = :nome:
+AND `senha` = :senha:', [...], false)
+ 3 SYSTEMPATH\Model.php(771): CodeIgniter\Database\BaseBuilder->get()
+ 4 APPPATH\Models\Usuario_Model.php(17): CodeIgniter\Model->__call('get', [])
+ 5 APPPATH\Controllers\Login_Controller.php(26): App\Models\Usuario_model->verificarCredenciais('Cleytinho', '12345')
+ 6 SYSTEMPATH\CodeIgniter.php(896): App\Controllers\Login_Controller->verificarCredenciais()
+ 7 SYSTEMPATH\CodeIgniter.php(466): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Login_Controller))
+ 8 SYSTEMPATH\CodeIgniter.php(349): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 FCPATH\index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2024-05-08 20:19:55 --> auth filter must have a matching alias defined.
+in SYSTEMPATH\Filters\Filters.php on line 340.
+ 1 SYSTEMPATH\Filters\Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias('auth')
+ 2 SYSTEMPATH\CodeIgniter.php(431): CodeIgniter\Filters\Filters->enableFilter('auth', 'before')
+ 3 SYSTEMPATH\CodeIgniter.php(349): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 4 FCPATH\index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2024-05-08 20:20:24 --> auth filter must have a matching alias defined.
+in SYSTEMPATH\Filters\Filters.php on line 340.
+ 1 SYSTEMPATH\Filters\Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias('auth')
+ 2 SYSTEMPATH\CodeIgniter.php(431): CodeIgniter\Filters\Filters->enableFilter('auth', 'before')
+ 3 SYSTEMPATH\CodeIgniter.php(349): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 4 FCPATH\index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2024-05-08 20:27:00 --> auth filter must have a matching alias defined.
+in SYSTEMPATH\Filters\Filters.php on line 340.
+ 1 SYSTEMPATH\Filters\Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias('auth')
+ 2 SYSTEMPATH\CodeIgniter.php(431): CodeIgniter\Filters\Filters->enableFilter('auth', 'before')
+ 3 SYSTEMPATH\CodeIgniter.php(349): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 4 FCPATH\index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2024-05-08 20:27:20 --> Namespace declaration statement has to be the very first statement or after any declare call in the script
+in APPPATH\Models\Grid_Model.php on line 4.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
