@@ -103,6 +103,7 @@
         <div class="form-group">
             <label for="nome">Nome:*</label>
             <input type="text" class="form-control" id="nome" name="nome" value="<?= isset($protocolo) ? $protocolo->protocol_nome : $nome; ?>" required readonly>
+        </div>
         <div class="form-group">
             <label for="email">Email:*</label>
             <input type="email" class="form-control" id="email" name="email" value="<?= isset($protocolo) ? $protocolo->protocol_email : ''; ?>" required>

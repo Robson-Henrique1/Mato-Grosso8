@@ -22,9 +22,10 @@
             border-radius: 10px;
             box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
             text-align: center;
-            max-width: 400px;
+            max-width: 600px;
             width: 100%;
             transition: transform 0.3s ease;
+            margin: 20px auto;
         }
 
         .upload-form:hover {
@@ -118,17 +119,23 @@
         <div class="form-group">
             <label for="pdfCpf">Anexar Documento de identificação [CPF|RG|CNH] (PDF):*</label>
             <br>
-            <input type="file" class="form-control-file" id="pdfId" name="pdfId" accept="application/pdf" required 
-            value="<?= isset($ehupdate) ? 'public/assets/'.$matricula.'/identificacao.pdf' : ''; ?>">
+            <?php if (isset($ehupdate)):
+                echo '<a href="' . 'assets/'.$matricula.'/identificacao.pdf' . '" target="_blank">identificacao.pdf</a>';
+             endif; ?>
+            <input type="file" class="form-control-file" id="pdfId" name="pdfId" accept="application/pdf" <?= isset($ehupdate) ? '' : 'required'; ?> >
         <div class="form-group">
             <label for="pdfComprovante">Anexar Comprovante de Residência (PDF):*</label>
-            <input type="file" class="form-control-file" id="pdfComprovante" name="pdfComprovante" accept="application/pdf"
-            value="<?= isset($ehupdate) ? 'public/assets/'.$matricula.'/residencia.pdf' : ''; ?>" required>
+            <?php if (isset($ehupdate)):
+                echo '<a href="' . 'assets/'.$matricula.'/residencia.pdf' . '" target="_blank">residencia.pdf</a>';
+             endif; ?>
+            <input type="file" class="form-control-file" id="pdfComprovante" name="pdfComprovante" accept="application/pdf" <?= isset($ehupdate) ? '' : 'required'; ?> >
         </div>
         <div class="form-group">
             <label for="pdfContrato">Anexar Contrato/Procuração Preenchida (img):*</label>
-            <input type="file" class="form-control-file" id="imgContrato" name="imgContrato" accept="image/*" 
-            value="<?= isset($ehupdate) ? 'public/assets/'.$matricula.'/contrato.png' : ''; ?>" required>
+            <?php if (isset($ehupdate)):
+                echo '<a href="' . 'assets/'.$matricula.'/contrato.png' . '" target="_blank">contrato imagem</a>';
+             endif; ?>
+            <input type="file" class="form-control-file" id="imgContrato" name="imgContrato" accept="image/*" <?= isset($ehupdate) ? '' : 'required'; ?> >
         </div>
         <input type="hidden" name="matricula" id="matricula" value="<?=$matricula; ?>">
         <input type="hidden" name="ehupdate" id="ehupdate" value="<?=$ehupdate; ?>">
@@ -140,12 +147,17 @@
     <div class="modal-content">
         <button id="btn-fechar" class="close">Fechar</button>
         <h2 id="confirmation-message"></h2>
+        <script>
+            const btnFechar = document.getElementById('btn-fechar');
+            btnFechar.addEventListener('click', function() {
+            window.location.href = '<?= base_url('form') ?>';
+            });
+        </script>
     </div>
 </div>
 
 <script>
     const modal = document.getElementById('modal-confirmacao');
-    const btnFechar = document.getElementById('btn-fechar');
     const formUpload = document.getElementById('form-upload');
     const confirmationMessage = document.getElementById('confirmation-message');
 
@@ -154,31 +166,37 @@
         const pdfId = document.getElementById('pdfId').files[0];
         const pdfComprovante = document.getElementById('pdfComprovante').files[0];
         const imgContrato = document.getElementById('imgContrato').files[0];
+        const formData = new FormData();
         
-        if (pdfId && pdfComprovante && imgContrato) {
-            const formData = new FormData();
+        if (pdfId) {
             formData.append('pdfId', pdfId);
-            formData.append('pdfComprovante', pdfComprovante);
-            formData.append('imgContrato', imgContrato);
-            formData.append('matricula', document.getElementById('matricula').value);
-            formData.append('ehupdate', document.getElementById('ehupdate').value);
-
-            fetch('<?= base_url('salvarimagem') ?>', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Handle the response from the server
-                console.log(data);
-                confirmationMessage.textContent = `Imagem enviada com sucesso! O código de confirmação é ${data.codigo}.`;
-                modal.style.display = "block";
-            })
-            .catch(error => {
-                // Handle any errors that occur during the request
-                console.error(error);
-            });
         }
+        if (pdfComprovante) {
+            formData.append('pdfComprovante', pdfComprovante);
+        }
+        if (imgContrato) {
+            formData.append('imgContrato', imgContrato);
+        }
+        formData.append('matricula', document.getElementById('matricula').value);
+        formData.append('ehupdate', document.getElementById('ehupdate').value);
+
+        fetch('<?= base_url('salvarimagem') ?>', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Handle the response from the server
+            console.log(data);
+            confirmationMessage.textContent = `Imagem enviada com sucesso! O código de confirmação é ${data.codigo}.`;
+            modal.style.display = "block";
+        })
+        .catch(error => {
+            console.log(response);
+            console.log(data);
+            // Handle any errors that occur during the request
+            console.error(error);
+        });
     });
 
     btnFechar.addEventListener('click', function() {

@@ -17,7 +17,7 @@ class Form_Controller extends Controller {
         $usuario = $model->verificarUsuario($nome);
         if ($usuario->autor_statusdocumentos != "NULL") {
             $protocolo = $model->getProtocolo($nome);
-            return view('FormAddDados', ['protocolo' => $protocolo]);
+            return view('FormAddDados', ['protocolo' => $protocolo, 'nome' => $nome]);
         }
         return view("FormAddDados", ['nome' => $nome]);
     }
@@ -62,7 +62,7 @@ class Form_Controller extends Controller {
             $model = new Autor_Model();
             $model->atualizarProtocolo($nome, $email, $telefone, $cpf, $cep, $logradouro, $cidade, $bairro, $estado, $complemento, $ip,$rg,$exp,$civil,$numero);
         } else {
-            $ehupdate = false;
+            $ehupdate = null;
             $model = new Autor_Model();
             $model->criarProtocolo($nome, $email, $telefone, $cpf, $cep, $logradouro, $cidade, $bairro, $estado, $complemento, $ip,$rg,$exp,$civil,$numero);    
         }
@@ -77,25 +77,37 @@ class Form_Controller extends Controller {
     {
         $ehupdate = $this->request->getPost('ehupdate');
         $matricula = $this->request->getPost('matricula');
-
+        //var_dump($_POST);dd($_FILES);
         // Initialize the variable
-        if ($ehupdate == "sim") {
-            // Update existing files
-            $matriculaFolder = '/path/to/folder/' . $matricula;
-            if (is_dir($matriculaFolder)) {
-                // Remove existing files
-                unlink($matriculaFolder . '/identificacao.pdf');
-                unlink($matriculaFolder . '/residencia.pdf');
-                unlink($matriculaFolder . '/contrato.png');
+        if ($ehupdate == "1") {
+            $matriculaFolder = FCPATH.'assets/'. $matricula;
+            
+            if(isset($_FILES['pdfId']['tmp_name'])){
+                if (is_dir($matriculaFolder)) {
+                    // Remove existing files
+                    unlink($matriculaFolder . '/identificacao.pdf');
+                }
+                move_uploaded_file($_FILES['pdfId']['tmp_name'], $matriculaFolder . '/identificacao.pdf');
             }
 
-            // Add the updated files
-            move_uploaded_file($_FILES['pdfId']['tmp_name'], $matriculaFolder . '/identificacao.pdf');
-            move_uploaded_file($_FILES['pdfComprovante']['tmp_name'], $matriculaFolder . '/residencia.pdf');
-            move_uploaded_file($_FILES['imgContrato']['tmp_name'], $matriculaFolder . '/contrato.png');
+            if(isset($_FILES['pdfComprovante']['tmp_name'])){
+                if (is_dir($matriculaFolder)) {
+                    // Remove existing files
+                    unlink($matriculaFolder . '/residencia.pdf');
+                }
+                move_uploaded_file($_FILES['pdfComprovante']['tmp_name'], $matriculaFolder . '/residencia.pdf');
+            }
+
+            if(isset($_FILES['imgContrato']['tmp_name'])){
+                if (is_dir($matriculaFolder)) {
+                    // Remove existing files
+                    unlink($matriculaFolder . '/contrato.png');
+                }
+                move_uploaded_file($_FILES['imgContrato']['tmp_name'], $matriculaFolder . '/contrato.png');
+            }
         } else {
             // Create a new folder with the value of matricula
-            $matriculaFolder = '/path/to/folder/' . $matricula;
+            $matriculaFolder = FCPATH.'assets/'. $matricula;
             if (!is_dir($matriculaFolder)) {
                 mkdir($matriculaFolder, 0777, true);
             }
@@ -113,7 +125,8 @@ class Form_Controller extends Controller {
 
         $codigo = $protocolo->protocol_anoprotocolo.'-'.$protocolo->protocol_id;
         $model->setCodigo($matricula, $codigo);
-        return view('FormUploadImage', ['codigo' => $codigo,'matricula' => $matricula, 'ehupdate' => $ehupdate]);
+
+        return $this->response->setJSON(['codigo' => $codigo]);
 
     }
 
