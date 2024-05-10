@@ -11,28 +11,30 @@ class Form_Controller extends Controller {
         return view("FormConsultaNome");
     }
 
-    public function upload() {
-        return view("FormAddDados");
-    }
-
-    public function image() {
-        return view("FormUploadImage");
+    public function baixardocumento() {
+        $nome = $this->request->getPost('nome');
+        $model = new Autor_Model();
+        $usuario = $model->verificarUsuario($nome);
+        if ($usuario->autor_statusdocumentos != "NULL") {
+            $protocolo = $model->getProtocolo($nome);
+            return view('FormAddDados', ['protocolo' => $protocolo]);
+        }
+        return view("FormAddDados", ['nome' => $nome]);
     }
 
     public function verificar()
     {
         $nome = $this->request->getPost('nome');
-
         $model = new Autor_Model();
         $usuario = $model->verificarUsuario($nome);
-
         if (!$usuario) {
-            return view('FormConsultaNome', ['erro' => 'Usuário inexistente!']);
-        } else if ($usuario->autor_statusdocumentos == 'RECEBIDO') {
-            return view('FormConsultaNome', ['erro' => 'Documentos já recebidos!']);
+            return view('FormConsultaNome', ['erro' => 'Prezado(a), 
+            O seu nome não consta na listagem dos autores do processo de 1/3 de férias. 
+            Favor entrar em contato com o departamento jurídico do Sindicato pelo telefone (99)9999-9999 falar com Xxxx']);
+        } else if ($usuario->autor_statusdocumentos != "NULL") {
+            return view("FormBaixarDocumento", ['nome' => $nome]);
         }
-
-        return view('FormAddDados', ['nome' => $nome]);
+        return view('FormBaixarDocumento', ['nome' => $nome]);
     }
 
     public function salvardocumento()
@@ -40,7 +42,7 @@ class Form_Controller extends Controller {
         $nome = $this->request->getPost('nome');
         $email = $this->request->getPost('email');
         $telefone = $this->request->getPost('telefone');
-        $cpf = $this->request->getPost('cpf');
+        $cpf = str_replace(['.', '-'], '', $this->request->getPost('cpf'));
         $cep = str_replace('-', '', $this->request->getPost('cep'));
         $logradouro = $this->request->getPost('logradouro');
         $cidade = $this->request->getPost('cidade');
@@ -53,51 +55,66 @@ class Form_Controller extends Controller {
         $exp = $this->request->getPost('exp');
         $civil = $this->request->getPost('civil');
 
-        $model = new Autor_Model();
-        $model->criarProtocolo($nome, $email, $telefone, $cpf, $cep, $logradouro, $cidade, $bairro, $estado, $complemento, $ip,$rg,$exp,$civil,$numero);
+        $ehupdate = $this->request->getPost('ehupdate');
 
+        if($ehupdate == "sim"){
+            $ehupdate = true;
+            $model = new Autor_Model();
+            $model->atualizarProtocolo($nome, $email, $telefone, $cpf, $cep, $logradouro, $cidade, $bairro, $estado, $complemento, $ip,$rg,$exp,$civil,$numero);
+        } else {
+            $ehupdate = false;
+            $model = new Autor_Model();
+            $model->criarProtocolo($nome, $email, $telefone, $cpf, $cep, $logradouro, $cidade, $bairro, $estado, $complemento, $ip,$rg,$exp,$civil,$numero);    
+        }
+       
         $model = new Autor_Model();
         $matricula = $model->getMatricula($nome);
-        $subfolder = $matricula;
-        $subfolderPath = FCPATH . "assets/" . $subfolder;
-        if (!is_dir($subfolderPath)) {
-            mkdir($subfolderPath, 0777, true);
-        }
 
-        //salva documentos na pasta
-        $targetFile = $subfolderPath . '/' . $_FILES['pdfCpf']['name'];
-        move_uploaded_file($_FILES["pdfCpf"]["tmp_name"], $targetFile);
-        $targetFile = $subfolderPath . '/' . $_FILES['pdfComprovante']['name'];
-        move_uploaded_file($_FILES["pdfComprovante"]["tmp_name"], $targetFile);
-        $targetFile = $subfolderPath . '/' . $_FILES['pdfContrato']['name'];
-        move_uploaded_file($_FILES["pdfContrato"]["tmp_name"], $targetFile);
-
-        return view('FormUploadImage', ['matricula' => $matricula]);
+        return view('FormUploadImage', ['matricula' => $matricula, 'nome' => $nome, 'ehupdate' => $ehupdate]);
     }
 
     public function salvarimagem()
     {
+        $ehupdate = $this->request->getPost('ehupdate');
         $matricula = $this->request->getPost('matricula');
-        $subfolder = $matricula;
-        $subfolderPath = FCPATH . "assets/" . $subfolder;
-        if (!is_dir($subfolderPath)) {
-            mkdir($subfolderPath, 0777, true);
+
+        // Initialize the variable
+        if ($ehupdate == "sim") {
+            // Update existing files
+            $matriculaFolder = '/path/to/folder/' . $matricula;
+            if (is_dir($matriculaFolder)) {
+                // Remove existing files
+                unlink($matriculaFolder . '/identificacao.pdf');
+                unlink($matriculaFolder . '/residencia.pdf');
+                unlink($matriculaFolder . '/contrato.png');
+            }
+
+            // Add the updated files
+            move_uploaded_file($_FILES['pdfId']['tmp_name'], $matriculaFolder . '/identificacao.pdf');
+            move_uploaded_file($_FILES['pdfComprovante']['tmp_name'], $matriculaFolder . '/residencia.pdf');
+            move_uploaded_file($_FILES['imgContrato']['tmp_name'], $matriculaFolder . '/contrato.png');
+        } else {
+            // Create a new folder with the value of matricula
+            $matriculaFolder = '/path/to/folder/' . $matricula;
+            if (!is_dir($matriculaFolder)) {
+                mkdir($matriculaFolder, 0777, true);
+            }
+
+            // Add the files
+            move_uploaded_file($_FILES['pdfId']['tmp_name'], $matriculaFolder . '/identificacao.pdf');
+            move_uploaded_file($_FILES['pdfComprovante']['tmp_name'], $matriculaFolder . '/residencia.pdf');
+            move_uploaded_file($_FILES['imgContrato']['tmp_name'], $matriculaFolder . '/contrato.png');
         }
 
-        $targetFile = $subfolderPath . '/' . $_FILES['imagem']['name'];
-        move_uploaded_file($_FILES["imagem"]["tmp_name"], $targetFile);
-
-        $codigo = '1234';
         $model = new Autor_Model();
-        do {
-            $codigo = rand(100000, 999999);
-        } while ($model->checkCodigoExists($codigo));
+        $protocolo = $model->getProtocoloMatricula($matricula);
 
+
+
+        $codigo = $protocolo->protocol_anoprotocolo.'-'.$protocolo->protocol_id;
         $model->setCodigo($matricula, $codigo);
+        return view('FormUploadImage', ['codigo' => $codigo,'matricula' => $matricula, 'ehupdate' => $ehupdate]);
 
-        return $codigo;
-
-        return view('FormUploadImage', ['codigo' => $codigo,'matricula' => $matricula]);
     }
 
     function get_client_ip() {

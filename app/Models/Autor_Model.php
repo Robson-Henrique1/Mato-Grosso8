@@ -12,25 +12,40 @@ class Autor_Model extends Model
     public function verificarUsuario($nome)
     {
         return $this->db->table($this->table)
-                    ->where('autor_nome', $nome)
-                    ->get()->getRow();
+            ->where('autor_nome', $nome)
+            ->get()->getRow();
+    }
+
+    public function getProtocolo($nome)
+    {
+        return $this->db->table('protocolosrecebidos')
+            ->where('protocol_nome', $nome)
+            ->get()->getRow();
+    }
+
+    public function getProtocoloMatricula($matricula)
+    {
+        return $this->db->table('protocolosrecebidos')
+            ->where('protocol_matricula', $matricula)
+            ->get()->getRow();
     }
     public function getMatricula($nome)
     {
         $usuario = $this->db->table($this->table)
-                    ->where('autor_nome', $nome)
-                    ->get()->getRow();
+            ->where('autor_nome', $nome)
+            ->get()->getRow();
         return $usuario->autor_matricula;
     }
     public function getValor($nome)
     {
         $usuario = $this->db->table($this->table)
-                    ->where('autor_nome', $nome)
-                    ->get()->getRow();
+            ->where('autor_nome', $nome)
+            ->get()->getRow();
         return $usuario->autor_valor;
     }
 
-    public function checkCodigoExists($cod){
+    public function checkCodigoExists($cod)
+    {
         $query = $this->db->table('protocolosrecebidos')
             ->where('protocol_codigo', $cod)
             ->get();
@@ -42,14 +57,44 @@ class Autor_Model extends Model
         }
     }
 
-    public function setCodigo($matricula, $cod){
+    public function setCodigo($matricula, $cod)
+    {
         $this->db->table('protocolosrecebidos')
             ->where('protocol_matricula', $matricula)
             ->update(['protocol_codigo' => $cod]);
     }
 
-    public function criarProtocolo($nome, $email, $telefone, $cpf, $cep, $logradouro, $cidade, $bairro, $estado, $complemento, $ip,$rg,$exp,$civil,$numero){
-        //dd($ip);
+    public function atualizarProtocolo($nome, $email, $telefone, $cpf, $cep, $logradouro, $cidade, $bairro, $estado, $complemento, $ip, $rg, $exp, $civil, $numero)
+    {
+        $updateId = $this->db->table('protocolosrecebidos')
+            ->where('protocol_nome', $nome)
+            ->update([
+                'protocol_email' => $email,
+                'protocol_telefone' => $telefone,
+                'protocol_cpf' => $cpf,
+                'protocol_cep' => $cep,
+                'protocol_endereco' => $logradouro . ' ' . $complemento,
+                'protocol_cidade' => $cidade,
+                'protocol_bairro' => $bairro,
+                'protocol_estado' => $estado,
+                'protocol_identidade' => $rg,
+                'protocol_orgaoexped' => $exp,
+                'protocol_estadocivil' => $civil,
+                'protocol_numero' => $numero,
+                'protocol_ipmaquina' => $ip,
+            ]);
+
+            if ($updateId) {
+                $this->db->table($this->table)
+                    ->set('autor_statusdocumentos', 'RECEBIDO')
+                    ->where('autor_matricula', $this->getMatricula($nome))
+                    ->update();
+            }
+    }
+
+
+    public function criarProtocolo($nome, $email, $telefone, $cpf, $cep, $logradouro, $cidade, $bairro, $estado, $complemento, $ip, $rg, $exp, $civil, $numero)
+    {
         $insertId = $this->db->table('protocolosrecebidos')->insert([
             'protocol_anoprotocolo' => date('Y'),
             'protocol_nome' => $nome,
@@ -61,7 +106,7 @@ class Autor_Model extends Model
             'protocol_identidade' => $rg,
             'protocol_orgaoexped' => $exp,
             'protocol_estadocivil' => $civil,
-            'protocol_endereco' => $logradouro.' '.$complemento,
+            'protocol_endereco' => $logradouro . ' ' . $complemento,
             'protocol_numero' => $numero,
             'protocol_bairro' => $bairro,
             'protocol_cidade' => $cidade,
@@ -69,7 +114,7 @@ class Autor_Model extends Model
             'protocol_cep' => $cep,
             'protocol_telefone' => $telefone,
             'protocol_email' => $email,
-            'protocol_ipmaquina' => 'ip_teste',
+            'protocol_ipmaquina' => $ip,
         ]);
 
 

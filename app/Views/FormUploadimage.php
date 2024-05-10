@@ -113,13 +113,28 @@
     </style>
 </head>
 <body><div class="upload-form">
-    <h1>Enviar Imagem</h1>
+    <h1>Enviar Documentos</h1>
     <form id="form-upload" method="post" enctype="multipart/form-data">
-        <input type="file" id="imagem" name="imagem" accept="image/*" required>
-        <input type="hidden" name="matricula" value="<? echo $matricula; ?>">
+        <div class="form-group">
+            <label for="pdfCpf">Anexar Documento de identificação [CPF|RG|CNH] (PDF):*</label>
+            <br>
+            <input type="file" class="form-control-file" id="pdfId" name="pdfId" accept="application/pdf" required 
+            value="<?= isset($ehupdate) ? 'public/assets/'.$matricula.'/identificacao.pdf' : ''; ?>">
+        <div class="form-group">
+            <label for="pdfComprovante">Anexar Comprovante de Residência (PDF):*</label>
+            <input type="file" class="form-control-file" id="pdfComprovante" name="pdfComprovante" accept="application/pdf"
+            value="<?= isset($ehupdate) ? 'public/assets/'.$matricula.'/residencia.pdf' : ''; ?>" required>
+        </div>
+        <div class="form-group">
+            <label for="pdfContrato">Anexar Contrato/Procuração Preenchida (img):*</label>
+            <input type="file" class="form-control-file" id="imgContrato" name="imgContrato" accept="image/*" 
+            value="<?= isset($ehupdate) ? 'public/assets/'.$matricula.'/contrato.png' : ''; ?>" required>
+        </div>
+        <input type="hidden" name="matricula" id="matricula" value="<?=$matricula; ?>">
+        <input type="hidden" name="ehupdate" id="ehupdate" value="<?=$ehupdate; ?>">
         <button type="submit">Enviar</button>
     </form>
-</div>
+</div>        
 
 <div id="modal-confirmacao" class="modal">
     <div class="modal-content">
@@ -135,13 +150,18 @@
     const confirmationMessage = document.getElementById('confirmation-message');
 
     formUpload.addEventListener('submit', function(event) {
-        alert('here');
         event.preventDefault();
-        const file = document.getElementById('imagem').files[0];
+        const pdfId = document.getElementById('pdfId').files[0];
+        const pdfComprovante = document.getElementById('pdfComprovante').files[0];
+        const imgContrato = document.getElementById('imgContrato').files[0];
         
-        if (file) {
-            alert('file');
-            const formData = new FormData(this);
+        if (pdfId && pdfComprovante && imgContrato) {
+            const formData = new FormData();
+            formData.append('pdfId', pdfId);
+            formData.append('pdfComprovante', pdfComprovante);
+            formData.append('imgContrato', imgContrato);
+            formData.append('matricula', document.getElementById('matricula').value);
+            formData.append('ehupdate', document.getElementById('ehupdate').value);
 
             fetch('<?= base_url('salvarimagem') ?>', {
                 method: 'POST',
@@ -151,12 +171,10 @@
             .then(data => {
                 // Handle the response from the server
                 console.log(data);
-                alert(data.cod);
-                confirmationMessage.textContent = `Imagem enviada com sucesso! O código de confirmação é ${data.cod}.`;
+                confirmationMessage.textContent = `Imagem enviada com sucesso! O código de confirmação é ${data.codigo}.`;
                 modal.style.display = "block";
             })
             .catch(error => {
-                alert(data);
                 // Handle any errors that occur during the request
                 console.error(error);
             });

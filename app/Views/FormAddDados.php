@@ -9,6 +9,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
+
 <style>
     body {
         font-family: Arial, sans-serif;
@@ -95,101 +96,80 @@
 </style>
 </head>
 <body>
-<div class="container">
-    <h2>Baixe a ficha de procuração, preencha-a para uso posterior</h2>
-    <div class="row">
-        <div class="col">
-            <a id="btn-download-2" class="download-button" href="./cv_Paula_Araujo.pdf" download><i class="fas fa-file-pdf"></i> SINDICALIZADO</a>
-        </div>
-        <div class="col">
-            <a id="btn-download-2" class="download-button" href="./cv_Paula_Araujo.pdf" download><i class="fas fa-file-pdf"></i> NÃO SINDICALIZADO</a>
-        </div>
-    </div>
-</div>
+
 <div class="container">
     <h2>Formulário</h2>
     <form id="form" action="<?= base_url('salvardocumento') ?>" method="post" enctype="multipart/form-data">
         <div class="form-group">
-            <label for="nome">Nome:</label>
-            <input type="text" class="form-control" id="nome" name="nome" value="<?= $nome; ?>" required>
+            <label for="nome">Nome:*</label>
+            <input type="text" class="form-control" id="nome" name="nome" value="<?= isset($protocolo) ? $protocolo->protocol_nome : $nome; ?>" required readonly>
+        <div class="form-group">
+            <label for="email">Email:*</label>
+            <input type="email" class="form-control" id="email" name="email" value="<?= isset($protocolo) ? $protocolo->protocol_email : ''; ?>" required>
         </div>
         <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" class="form-control" id="email" name="email" required>
+            <label for="telefone">Telefone com DDD:* </label>
+            <input type="tel" class="form-control" id="telefone" name="telefone"  value="<?= isset($protocolo) ? $protocolo->protocol_telefone : ''; ?>" required>
         </div>
+        
         <div class="form-group">
-            <label for="telefone">Telefone com DDD:</label>
-            <input type="tel" class="form-control" id="telefone" name="telefone" required>
-        </div>
-        <div class="form-group">
-            <label for="civil">Estado Civil:</label>
+            <label for="civil">Estado Civil:*</label>
             <select class="form-control" id="civil" name="civil" required>
             <option value="">Selecione</option>
-            <option value="Solteiro">Solteiro</option>
-            <option value="Casado">Casado</option>
-            <option value="Divorciado">Divorciado</option>
-            <option value="Viúvo">Viúvo</option>
+            <option value="Solteiro" <?php echo isset($protocolo) && $protocolo->protocol_estadocivil == 'Solteiro' ? 'selected' : ''; ?>>Solteiro</option>
+            <option value="Casado" <?php echo isset($protocolo) && $protocolo->protocol_estadocivil == 'Casado' ? 'selected' : ''; ?>>Casado</option>
+            <option value="Divorciado" <?php echo isset($protocolo) && $protocolo->protocol_estadocivil == 'Divorciado' ? 'selected' : ''; ?>>Divorciado</option>
+            <option value="Viúvo" <?php echo isset($protocolo) && $protocolo->protocol_estadocivil == 'Viúvo' ? 'selected' : ''; ?>>Viúvo</option>
             </select>
         </div>
         <div class="form-group">
-            <label for="rg">RG:</label>
-            <input type="text" class="form-control" id="rg" name="rg" required>
+            <label for="rg">RG:*</label>
+            <input type="text" class="form-control" id="rg" name="rg" value="<?= isset($protocolo) ? $protocolo->protocol_identidade : ''; ?>" required>
         </div>
         <div class="form-group">
-            <label for="exp">Orgão Expedidor:</label>
-            <input type="text" class="form-control" id="exp" name="exp" required>
+            <label for="exp">Orgão Expedidor:*</label>
+            <input type="text" class="form-control" id="exp" name="exp" value="<?= isset($protocolo) ? $protocolo->protocol_orgaoexped : ''; ?>" required>
         </div>
         <div class="form-group">
-            <label for="cpf">CPF:</label>
-            <input type="text" class="form-control" id="cpf" name="cpf" required>
+            <label for="cpf">CPF:*</label>
+            <input type="text" class="form-control" id="cpf" name="cpf" value="<?= isset($protocolo) ? $protocolo->protocol_cpf : ''; ?>" required>
         </div>
         <div class="form-group">
-            <label for="cep">CEP:</label>
-            <input type="text" class="form-control" id="cep" name="cep" required>
+            <label for="cep">CEP:*</label>
+            <input type="text" class="form-control" id="cep" name="cep" value="<?= isset($protocolo) ? $protocolo->protocol_cep : ''; ?>" required>
         </div>
         <div id="endereco">
             <div class="form-group">
-                <label for="logradouro">Logradouro:</label>
-                <input type="text" class="form-control" id="logradouro" name="logradouro" required>
+                <label for="logradouro">Endereço/Logradouro:*</label>
+                <input type="text" class="form-control" id="logradouro" name="logradouro" value="<?= isset($protocolo) ? $protocolo->protocol_endereco : ''; ?>" required>
             </div>
             <div class="form-group">
-                <label for="cidade">Cidade:</label>
-                <input type="text" class="form-control" id="cidade" name="cidade" required>
-            </div>
-            <div class="form-group">
-                <label for="bairro">Bairro:</label>
-                <input type="text" class="form-control" id="bairro" name="bairro" required>
-            </div>
-            <div class="form-group">
-                <label for="estado">Estado:</label>
-                <input type="text" class="form-control" id="estado" name="estado" required>
+                <label for="numero">Número:*</label>
+                <input type="text" class="form-control" id="numero" name="numero" value="<?= isset($protocolo) ? $protocolo->protocol_numero : ''; ?>" required>
             </div>
             <div class="form-group">
                 <label for="complemento">Complemento:</label>
-                <input type="text" class="form-control" id="complemento" name="complemento">
+                <input type="text" class="form-control" id="complemento" name="complemento" value="<?= isset($protocolo) ? $protocolo->protocol_complemento : ''; ?>" >
             </div>
             <div class="form-group">
-                <label for="numero">Número:</label>
-                <input type="text" class="form-control" id="numero" name="numero" required>
+                <label for="bairro">Bairro:*</label>
+                <input type="text" class="form-control" id="bairro" name="bairro" value="<?= isset($protocolo) ? $protocolo->protocol_bairro : ''; ?>" required>
             </div>
-        </div>
-        <div class="form-group">
-            <label for="pdfCpf">Anexar CPF (PDF):</label>
-            <input type="file" class="form-control-file" id="pdfCpf" name="pdfCpf" accept="application/pdf" required>
-        </div>
-        <div class="form-group">
-            <label for="pdfComprovante">Anexar Comprovante de Residência (PDF):</label>
-            <input type="file" class="form-control-file" id="pdfComprovante" name="pdfComprovante" accept="application/pdf" required>
-        </div>
-        <div class="form-group">
-            <label for="pdfContrato">Anexar Contrato (PDF):</label>
-            <input type="file" class="form-control-file" id="pdfContrato" name="pdfContrato" accept="application/pdf" required>
+            <div class="form-group">
+                <label for="cidade">Cidade:*</label>
+                <input type="text" class="form-control" id="cidade" name="cidade" value="<?= isset($protocolo) ? $protocolo->protocol_cidade : ''; ?>" required>
+            </div>
+            <div class="form-group">
+                <label for="estado">UF:*</label>
+                <input type="text" class="form-control" id="estado" name="estado" value="<?= isset($protocolo) ? $protocolo->protocol_estado : ''; ?>" required>
+            </div>
         </div>
         <div class="form-group form-check">
             <input type="checkbox" class="form-check-input" id="declaracao" name="declaracao" required>
             <label class="form-check-label" for="declaracao">Declaro que não possuo processo em curso com a cobrança de 1/3 de férias e caso haja a entidade, seja condenada por litigância as despesa correrão por conta.</label>
         </div>
-        <button type="submit" class="btn btn-primary btn-block" >Enviar</button>
+        <input type="hidden" name="ehupdate" id="ehupdate" value="<?= isset($protocolo) ? 'sim' : 'nao'; ?>">
+        <button type="submit" class="btn btn-primary btn-block" >Avançar</button>
     </form>
 </div>
 
