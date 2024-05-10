@@ -35,10 +35,14 @@ $routes->setAutoRoute(true);
 $routes->group('', ['filters' => 'auth'], function ($routes) {
 	$routes->get('login/sucesso', 'Grid_Controller::index');
 	$routes->get('login/logout', 'Login_Controller::logout');
+	$routes->post('grid/atualizar_status', 'Grid_Controller::atualizarStatus');
+	$routes->get('grid/download_pasta/(:segment)', 'Grid_Controller::download_pasta/$1');
+	$routes->get('grid/download_todas_pastas', 'Grid_Controller::download_todas_pastas');
+
 });
-$routes->get('login/delete/(:num)', 'Grid_Controller::delete/$1');
+//$routes->get('login/delete/(:num)', 'Grid_Controller::delete/$1');
 $routes->post('login/verificar', 'Login_Controller::verificarCredenciais');
-$routes->get('/', 'Login_controller::index');
+$routes->get('/', 'Login_Controller::index');
 $routes->get('form', 'Form_Controller::index');
 $routes->post('baixardocumento', 'Form_Controller::baixardocumento',['as' => 'baixardocumento']);
 $routes->post('verificar', 'Form_Controller::verificar',['as' => 'verificar']);
