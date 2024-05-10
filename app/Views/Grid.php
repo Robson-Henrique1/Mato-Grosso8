@@ -253,7 +253,7 @@
 
     <div class="container mt-5 fade-in">
         <h1 class="mb-4 text-center">Lista de Protocolos Recebidos</h1>
-        <button class="btn btn-add btn-download-all">Baixar Tudo</button>
+        <a class="btn btn-add btn-download-all" href="<?= base_url('grid/download_todas_pastas/') ?>">Baixar Tudo</a>
         <table id="protocolos_table" class="table table-striped table-bordered">
             <thead>
                 <tr>
@@ -323,8 +323,7 @@
                         }
                     }
                 });
-
-                // Adiciona um efeito de pulso ao clicar no botão "Adicionar Protocolo"
+          
                 // $('.delete-protocol').on('click', function(e) {
                 //     e.preventDefault();
                 //     Swal.fire({

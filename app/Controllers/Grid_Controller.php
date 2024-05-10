@@ -40,29 +40,105 @@ class Grid_Controller extends Controller
             return redirect()->back()->with('error', 'A pasta não existe.');
         }
 
-        $zip_path = FCPATH . 'assets/' . $matricula . '.zip';
-        $zip = new \ZipArchive();
-        if ($zip->open($zip_path, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== TRUE) {
-            return redirect()->back()->with('error', 'Não foi possível criar o arquivo ZIP.');
-        }
+        $upload_dir = WRITEPATH . 'uploads/' . $matricula;
 
-        $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($pasta_path),
-            \RecursiveIteratorIterator::LEAVES_ONLY
-        );
-        foreach ($files as $name => $file) {
-            if (!$file->isDir()) {
-                $filePath = $file->getRealPath();
-                $relativePath = substr($filePath, strlen($pasta_path) + 1);
-
-                $zip->addFile($filePath, $relativePath);
+        if (!is_dir($upload_dir)) {
+            if (!mkdir($upload_dir, 0777, true)) {
+                return redirect()->back()->with('error', 'Não foi possível criar o diretório de uploads.');
             }
         }
 
-        $zip->close();
-
-        return $this->response->download($zip_path, null)->setFileName($matricula . '.zip');
+        $zip_path = $upload_dir ."/". $matricula .'.zip';
+        
+        if (!$this->is_dir_empty($pasta_path)) {
+            $zip = new \ZipArchive();
+            if ($zip->open($zip_path, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== TRUE) {
+                return redirect()->back()->with('error', 'Não foi possível criar o arquivo ZIP.');
+            }
+            
+            $files = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($pasta_path),
+                \RecursiveIteratorIterator::LEAVES_ONLY
+            );
+            foreach ($files as $name => $file) {
+                if (!$file->isDir()) {
+                    $filePath = $file->getRealPath();
+                    $relativePath = substr($filePath, strlen($pasta_path) + 1);
+    
+                    $zip->addFile($filePath, $relativePath);
+                }
+            }
+            
+            $zip->close();
+        } else {
+            return redirect()->back()->with('error', 'A pasta está vazia.');
+        }
+    
+        if (!file_exists($zip_path)) {
+            return redirect()->back()->with('error', 'O arquivo ZIP não foi encontrado.');
+        }
+    
+        return $this->response->download($zip_path, null)->setFileName($matricula .'.zip');
     }
+
+    public function download_todas_pastas()
+    {
+        $pasta_path = FCPATH . 'assets';
+        
+        if (!is_dir($pasta_path)) {
+            return redirect()->back()->with('error', 'A pasta não existe.');
+        }
+    
+        $upload_dir = WRITEPATH . 'uploads';
+        
+        // Verifica se o diretório de uploads existe, se não, tenta criar
+        if (!is_dir($upload_dir)) {
+            if (!mkdir($upload_dir, 0777, true)) {
+                return redirect()->back()->with('error', 'Não foi possível criar o diretório de uploads.');
+            }
+        }
+    
+        $zip_path = $upload_dir . '/assets.zip'; // Caminho onde o arquivo ZIP será criado
+        
+        // Verifica se a pasta está vazia
+        if (!$this->is_dir_empty($pasta_path)) {
+            $zip = new \ZipArchive();
+            if ($zip->open($zip_path, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== TRUE) {
+                return redirect()->back()->with('error', 'Não foi possível criar o arquivo ZIP.');
+            }
+            
+            $files = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($pasta_path),
+                \RecursiveIteratorIterator::LEAVES_ONLY
+            );
+            foreach ($files as $name => $file) {
+                if (!$file->isDir()) {
+                    $filePath = $file->getRealPath();
+                    $relativePath = substr($filePath, strlen($pasta_path) + 1);
+    
+                    $zip->addFile($filePath, $relativePath);
+                }
+            }
+            
+            $zip->close();
+        } else {
+            return redirect()->back()->with('error', 'A pasta está vazia.');
+        }
+    
+        if (!file_exists($zip_path)) {
+            return redirect()->back()->with('error', 'O arquivo ZIP não foi encontrado.');
+        }
+    
+        return $this->response->download($zip_path, null)->setFileName('Documentos.zip');
+    }
+    
+    // Função para verificar se um diretório está vazio
+    protected function is_dir_empty($dir) {
+        if (!is_readable($dir)) return NULL;
+        return (count(scandir($dir)) == 2);
+    }
+    
+
 
     // public function delete($id)
     // {
