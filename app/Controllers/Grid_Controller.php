@@ -32,54 +32,60 @@ class Grid_Controller extends Controller
     }
 
     public function download_pasta($matricula)
-    {
-        $pasta_path = FCPATH . 'assets/' . $matricula;
-        
-        if (!is_dir($pasta_path)) {
-
-            return redirect()->back()->with('error', 'A pasta não existe.');
-        }
-
-        $upload_dir = WRITEPATH . 'uploads/' . $matricula;
-
-        if (!is_dir($upload_dir)) {
-            if (!mkdir($upload_dir, 0777, true)) {
-                return redirect()->back()->with('error', 'Não foi possível criar o diretório de uploads.');
-            }
-        }
-
-        $zip_path = $upload_dir ."/". $matricula .'.zip';
-        
-        if (!$this->is_dir_empty($pasta_path)) {
-            $zip = new \ZipArchive();
-            if ($zip->open($zip_path, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== TRUE) {
-                return redirect()->back()->with('error', 'Não foi possível criar o arquivo ZIP.');
-            }
-            
-            $files = new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($pasta_path),
-                \RecursiveIteratorIterator::LEAVES_ONLY
-            );
-            foreach ($files as $name => $file) {
-                if (!$file->isDir()) {
-                    $filePath = $file->getRealPath();
-                    $relativePath = substr($filePath, strlen($pasta_path) + 1);
+{
+    $pasta_path = FCPATH . 'assets/' . $matricula;
     
-                    $zip->addFile($filePath, $relativePath);
-                }
-            }
-            
-            $zip->close();
-        } else {
-            return redirect()->back()->with('error', 'A pasta está vazia.');
-        }
-    
-        if (!file_exists($zip_path)) {
-            return redirect()->back()->with('error', 'O arquivo ZIP não foi encontrado.');
-        }
-    
-        return $this->response->download($zip_path, null)->setFileName($matricula .'.zip');
+    if (!is_dir($pasta_path)) {
+        return $this->response->setJSON(['success' => false, 'message' => 'A pasta não existe.']);
     }
+
+    $upload_dir = WRITEPATH . 'uploads/' . $matricula;
+
+    if (!is_dir($upload_dir)) {
+        if (!mkdir($upload_dir, 0777, true)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Não foi possível criar o diretório de uploads.']);
+        }
+    }
+
+    $zip_path = $upload_dir . "/" . $matricula . '.zip';
+    
+    if (!$this->is_dir_empty($pasta_path)) {
+        $zip = new \ZipArchive();
+        if ($zip->open($zip_path, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== TRUE) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Não foi possível criar o arquivo ZIP.']);
+        }
+        
+        $files = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($pasta_path),
+            \RecursiveIteratorIterator::LEAVES_ONLY
+        );
+        foreach ($files as $name => $file) {
+            if (!$file->isDir()) {
+                $filePath = $file->getRealPath();
+                $relativePath = substr($filePath, strlen($pasta_path) + 1);
+
+                $zip->addFile($filePath, $relativePath);
+            }
+        }
+        
+        $zip->close();
+    } else {
+        return $this->response->setJSON(['success' => false, 'message' => 'A pasta está vazia.']);
+    }
+
+    if (!file_exists($zip_path)) {
+        return $this->response->setJSON(['success' => false, 'message' => 'O arquivo ZIP não foi encontrado.']);
+    }
+
+    // Atualiza o status no banco de dados
+    $autorModel = new Grid_Model();
+    $autorModel->updateStatusByMatricula($matricula, 'BAIXADO');
+
+    $download_url = base_url('uploads/' . $matricula . '/' . $matricula . '.zip');
+
+    return $this->response->setJSON(['success' => true, 'message' => 'Arquivo baixado com sucesso.', 'download_url' => $download_url]);
+}
+
 
     public function download_todas_pastas()
     {
@@ -138,7 +144,18 @@ class Grid_Controller extends Controller
         return (count(scandir($dir)) == 2);
     }
     
+    public function pegar_protocolo_detalhes()
+    {
+        $id = $this->request->getPost('id');
+        $gridModel = new Grid_Model();
+        $data = $gridModel->find($id);
 
+        if ($data) {
+            return $this->response->setJSON(['success' => true, 'data' => $data]);
+        } else {
+            return $this->response->setJSON(['success' => false, 'message' => 'Dados não encontrados.']);
+        }
+    }
 
     // public function delete($id)
     // {

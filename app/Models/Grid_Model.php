@@ -38,4 +38,15 @@ class Grid_Model extends Model {
         return $this->db->affectedRows() > 0;
     }
 
+    public function updateStatusByMatricula($matricula, $newStatus)
+    {
+        $data = [
+            'autor_statusdocumentos' => $newStatus
+        ];
+
+        $this->db->table('autores')
+            ->where('autor_matricula', $matricula)
+            ->update($data);
+    }
+
 }

@@ -281,7 +281,7 @@
                             </select>
                         </td>
                         <td>
-                            <button class="btn btn-action btn-view"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-action btn-view" data-id="<?= $protocolo['protocol_id'] ?>"><i class="fas fa-eye"></i></button>
                             <a id="downloadButton" href="<?= base_url('grid/download_pasta/' . $protocolo['protocol_matricula']) ?>" class="btn btn-action btn-download"><i class="fas fa-download"></i></a>
                             <span id="loadingSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                             <!-- <a href="<?= base_url('login/delete/' . $protocolo['protocol_id']) ?>" class="btn btn-action btn-delete delete-protocol"><i class="fas fa-trash-alt"></i></a> -->
@@ -291,9 +291,32 @@
             </tbody>
         </table>
 
+        <!-- Modal -->
+    <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewModalLabel">Detalhes do Protocolo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table">
+                        <tbody id="modalContent">
+                            <!-- Os detalhes do protocolo serão carregados aqui via AJAX -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
         <!-- Inclua o JavaScript do jQuery, do DataTables e do Bootstrap -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
         <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
         <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
@@ -323,7 +346,7 @@
                         }
                     }
                 });
-          
+
                 // $('.delete-protocol').on('click', function(e) {
                 //     e.preventDefault();
                 //     Swal.fire({
@@ -398,42 +421,137 @@
                         }
                     });
                 });
-        
-                $('#downloadButton').click(function(event) {
-            event.preventDefault(); // Evita o comportamento padrão de clicar no link
 
-            // Exibe um alerta de confirmação antes de iniciar o download
-            Swal.fire({
-                title: 'Tem certeza?',
-                text: "Você realmente deseja baixar este arquivo?",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Sim',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Se o usuário confirmar, mostra o ícone de carregamento
-                    $('#loadingSpinner').removeClass('d-none');
+                $('.btn-download').click(function(event) {
+                    event.preventDefault();
 
-                    // Desativa o botão de download
-                    $(this).addClass('disabled');
+                    var downloadButton = $(this);
+                    var loadingSpinner = downloadButton.siblings('.spinner-border');
+                    var dropdown = $(this).closest('tr').find('.status-dropdown');
 
-                    // Inicia o download após um atraso simulado de 2 segundos (para simular o download)
-                    setTimeout(function() {
-                        // Redireciona para o link de download
-                        window.location.href = $('#downloadButton').attr('href');
+                    Swal.fire({
+                        title: 'Tem certeza?',
+                        text: "Você realmente deseja baixar este arquivo?",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Sim',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            loadingSpinner.removeClass('d-none');
+                            downloadButton.addClass('disabled');
 
-                        // Após o término do download, remove a classe 'disabled' do botão de download
-                        $('#downloadButton').removeClass('disabled');
+                            // Faça a solicitação AJAX para baixar o arquivo
+                            $.ajax({
+                                url: downloadButton.attr('href'),
+                                type: 'GET',
+                                success: function(response) {
+                                    console.log('Response received:', response); // Debugging statement
 
-                        // Oculta o ícone de carregamento
-                        $('#loadingSpinner').addClass('d-none');
-                    }, 2000); // Tempo de simulação do download em milissegundos (2 segundos)
-                }
-            });
-        });
+                                    if (response.success) {
+                                        // Atualize a interface do usuário, se necessário
+                                        dropdown.val('BAIXADO');
+                                        // Inicie o download do arquivo
+                                        window.location.href = response.download_url;
+                                        // Exiba uma mensagem de sucesso para o usuário
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Sucesso!',
+                                            text: response.message
+                                        });
+                                    } else {
+                                        // Exiba uma mensagem de erro se houver um problema
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Erro!',
+                                            text: response.message
+                                        });
+                                    }
+                                },
+                                error: function(xhr, status, error) {
+                                    console.log('AJAX Error:', xhr, status, error); // Debugging statement
+                                    // Exiba uma mensagem de erro se ocorrer um erro na solicitação AJAX
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Erro!',
+                                        text: 'Falha ao enviar a solicitação.'
+                                    });
+                                },
+                                complete: function() {
+                                    // Remova a classe 'disabled' do botão de download
+                                    downloadButton.removeClass('disabled');
+                                    // Oculte o spinner de carregamento
+                                    loadingSpinner.addClass('d-none');
+                                }
+                            });
+                        }
+                    });
+                });
+
+                $('.btn-view').click(function(event) {
+                    var id = $(this).data('id');
+                    $.ajax({
+                        url: '<?= base_url('grid/pegar_protocolo_detalhes') ?>',
+                        type: 'POST',
+                        data: {
+                            id: id
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                var content = '';
+                                $.each(response.data, function(key, value) {
+                    // Verifica se a chave é 'protocol_id' para não incluir no modal
+                    if (key !== 'protocol_id') {
+                        // Renomeia as chaves para exibição no modal
+                        var displayKey = '';
+                        switch (key) {
+                            case 'protocol_matricula':
+                                displayKey = 'Matrícula';
+                                break;
+                            case 'protocol_nome':
+                                displayKey = 'Nome';
+                                break;
+                            case 'protocol_cpf':
+                                displayKey = 'CPF';
+                                break;
+                            case 'protocol_situacaoprofissional':
+                                displayKey = 'Situação Profissional';
+                                break;
+                            case 'autor_statusdocumentos':
+                                displayKey = 'Status Documentos';
+                                break;
+                            default:
+                                displayKey = key;
+                                break;
+                        }
+                        content += '<tr><th>' + displayKey + '</th><td>' + value + '</td></tr>';
+                    }
+                });
+                                $('#modalContent').html(content);
+                                $('#viewModal').modal('show');
+                                console.log(response.success);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Erro!',
+                                    text: response.message
+                                });
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erro!',
+                                text: 'Falha ao enviar a solicitação.'
+                            });
+                        }
+                    });
+                });
+
+
+
             });
         </script>
 </body>
