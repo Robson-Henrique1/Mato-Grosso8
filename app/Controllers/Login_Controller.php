@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\Usuario_model;
+use App\Models\Usuario_Model;
 use CodeIgniter\Controller;
 
 class Login_Controller extends Controller
@@ -20,7 +20,7 @@ class Login_Controller extends Controller
         $nomeUsuario = $this->request->getPost('username');
         $senha = $this->request->getPost('password');
 
-        $usuarioModel = new Usuario_model();
+        $usuarioModel = new Usuario_Model();
 
         // Verificar as credenciais
         $usuario_id = $usuarioModel->verificarCredenciais($nomeUsuario, $senha);

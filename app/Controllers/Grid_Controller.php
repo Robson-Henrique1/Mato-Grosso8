@@ -42,7 +42,7 @@ class Grid_Controller extends Controller
         return $this->response->setJSON(['success' => false, 'message' => 'A pasta não existe.']);
     }
 
-    $upload_dir = WRITEPATH . 'uploads/' . $matricula;
+    $upload_dir = FCPATH . 'uploads/' . $matricula;
 
     if (!is_dir($upload_dir)) {
         if (!mkdir($upload_dir, 0777, true)) {
