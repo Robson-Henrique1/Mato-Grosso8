@@ -39,6 +39,7 @@ $routes->group('', ['filters' => 'auth'], function ($routes) {
 	$routes->get('grid/download_pasta/(:segment)', 'Grid_Controller::download_pasta/$1');
 	$routes->get('grid/download_todas_pastas', 'Grid_Controller::download_todas_pastas');
 	$routes->post('grid/pegar_protocolo_detalhes', 'Grid_Controller::pegar_protocolo_detalhes');
+	$routes->get('grid/exportar_excel', 'Grid_Controller::exportar_excel');
 
 });
 //$routes->get('login/delete/(:num)', 'Grid_Controller::delete/$1');

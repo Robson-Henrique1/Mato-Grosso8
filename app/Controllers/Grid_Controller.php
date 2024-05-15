@@ -2,9 +2,12 @@
 
 namespace App\Controllers;
 
-use App\Models\Grid_Model;;
+use App\Models\Grid_Model;
 
 use CodeIgniter\Controller;
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class Grid_Controller extends Controller
 {
@@ -155,6 +158,83 @@ class Grid_Controller extends Controller
         } else {
             return $this->response->setJSON(['success' => false, 'message' => 'Dados não encontrados.']);
         }
+    }
+
+    public function exportar_excel()
+    {
+        $model = new Grid_Model();
+        $protocolos = $model->getAllProtocolos();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Definir os cabeçalhos
+        $sheet->setCellValue('A1', 'Ano');
+        $sheet->setCellValue('B1', 'Matricula');
+        $sheet->setCellValue('C1', 'Nome');
+        $sheet->setCellValue('D1', 'CPF');
+        $sheet->setCellValue('E1', 'Situação');
+        $sheet->setCellValue('F1', 'Tipo Categoria');
+        $sheet->setCellValue('G1', 'Valor');
+        $sheet->setCellValue('H1', 'Identidade');
+        $sheet->setCellValue('I1', 'Orgao Emissor');
+        $sheet->setCellValue('J1', 'Estado Civil');
+        $sheet->setCellValue('K1', 'Endereco');
+        $sheet->setCellValue('L1', 'Numero');
+        $sheet->setCellValue('M1', 'Bairro');
+        $sheet->setCellValue('N1', 'Cidade');
+        $sheet->setCellValue('O1', 'Estado');
+        $sheet->setCellValue('P1', 'Cep');
+        $sheet->setCellValue('Q1', 'Telefone');
+        $sheet->setCellValue('R1', 'Celular');
+        $sheet->setCellValue('S1', 'E-mail');
+        $sheet->setCellValue('T1', 'Data e Hora Envio');
+        $sheet->setCellValue('U1', 'Ip');
+        $sheet->setCellValue('V1', 'Complemento');
+        $sheet->setCellValue('W1', 'Codigo');
+
+
+        // Adicionar os dados
+        $row = 2;
+        foreach ($protocolos as $protocolo) {
+            $sheet->setCellValue('A' . $row, $protocolo['protocol_anoprotocolo']);
+            $sheet->setCellValue('B' . $row, $protocolo['protocol_matricula']);
+            $sheet->setCellValue('C' . $row, $protocolo['protocol_nome']);
+            $sheet->setCellValue('D' . $row, $protocolo['protocol_cpf']);
+            $sheet->setCellValue('E' . $row, $protocolo['protocol_situacaoprofissional']);
+            $sheet->setCellValue('F' . $row, $protocolo['protocol_tipocategoria']);
+            $sheet->setCellValue('G' . $row, $protocolo['protocol_valor']);
+            $sheet->setCellValue('H' . $row, $protocolo['protocol_identidade']);
+            $sheet->setCellValue('I' . $row, $protocolo['protocol_orgaoexped']);
+            $sheet->setCellValue('J' . $row, $protocolo['protocol_estadocivil']);
+            $sheet->setCellValue('K' . $row, $protocolo['protocol_endereco']);
+            $sheet->setCellValue('L' . $row, $protocolo['protocol_numero']);
+            $sheet->setCellValue('M' . $row, $protocolo['protocol_bairro']);
+            $sheet->setCellValue('N' . $row, $protocolo['protocol_cidade']);
+            $sheet->setCellValue('O' . $row, $protocolo['protocol_estado']);
+            $sheet->setCellValue('P' . $row, $protocolo['protocol_cep']);
+            $sheet->setCellValue('Q' . $row, $protocolo['protocol_telefone']);
+            $sheet->setCellValue('R' . $row, $protocolo['protocol_celular']);
+            $sheet->setCellValue('S' . $row, $protocolo['protocol_email']);
+            $sheet->setCellValue('T' . $row, $protocolo['protocol_datahoraenvio']);
+            $sheet->setCellValue('U' . $row, $protocolo['protocol_ipmaquina']);
+            $sheet->setCellValue('V' . $row, $protocolo['protocol_complemento']);
+            $sheet->setCellValue('W' . $row, $protocolo['protocol_codigo']);
+
+
+            $row++;
+        }
+
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'protocolos.xlsx';
+
+        // Redefinir cabeçalhos para download do arquivo
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $fileName . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+        exit();
     }
 
     // public function delete($id)

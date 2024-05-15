@@ -239,21 +239,11 @@
         </div>
     <?php endif; ?>
 
-    <?php if (session()->has('error')) : ?>
-        <div id="errorMessage" class="toast align-items-center text-white bg-danger border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">
-                    <i class="fas fa-exclamation-circle me-2"></i>
-                    <strong>Erro!</strong> <?= session('error') ?>
-                </div>
-            </div>
-        </div>
-    <?php endif; ?>
-
 
     <div class="container mt-5 fade-in">
         <h1 class="mb-4 text-center">Lista de Protocolos Recebidos</h1>
         <a class="btn btn-add btn-download-all" href="<?= base_url('grid/download_todas_pastas/') ?>">Baixar Tudo</a>
+        <a class="btn btn-add btn-download-all" href="<?= base_url('grid/exportar_excel') ?>">Baixar Dados em Excel</a>
         <table id="protocolos_table" class="table table-striped table-bordered">
             <thead>
                 <tr>
@@ -522,6 +512,82 @@
                             case 'autor_statusdocumentos':
                                 displayKey = 'Status Documentos';
                                 break;
+
+                                case 'protocol_anoprotocolo':
+                                displayKey = 'Ano do Protocolo';
+                                break;
+                                case 'protocol_tipocategoria':
+                                displayKey = 'Tipo Categoria';
+                                break;
+
+                                case 'protocol_valor':
+                                displayKey = 'Valor';
+                                break;
+
+                                case 'protocol_identidade':
+                                displayKey = 'Identidade';
+                                break;
+
+                                case 'protocol_orgaoexped':
+                                displayKey = 'Órgão emissor';
+                                break;
+
+                                case 'protocol_estadocivil':
+                                displayKey = 'Estado Civil';
+                                break;
+
+                                case 'protocol_endereco':
+                                displayKey = 'Endereco';
+                                break;
+
+                                case 'protocol_numero':
+                                displayKey = 'Numero';
+                                break;
+
+                                case 'protocol_bairro':
+                                displayKey = 'Bairro';
+                                break;
+
+                                case 'protocol_cidade':
+                                displayKey = 'Cidade';
+                                break;
+
+                                case 'protocol_estado':
+                                displayKey = 'Estado';
+                                break;
+
+                                case 'protocol_cep':
+                                displayKey = 'Cep';
+                                break;
+
+                                case 'protocol_telefone':
+                                displayKey = 'Telefone';
+                                break;
+
+                                case 'protocol_celular':
+                                displayKey = 'Celular';
+                                break;
+
+                                case 'protocol_email':
+                                displayKey = 'Email';
+                                break;
+
+                                case 'protocol_datahoraenvio':
+                                displayKey = 'Data e Hora de envio';
+                                break;
+
+                                case 'protocol_ipmaquina':
+                                displayKey = 'IP';
+                                break;
+
+                                case 'protocol_complemento':
+                                displayKey = 'Complemento';
+                                break;
+
+                                case 'protocol_codigo':
+                                displayKey = 'Codigo';
+                                break;
+
                             default:
                                 displayKey = key;
                                 break;
@@ -547,7 +613,11 @@
                                 text: 'Falha ao enviar a solicitação.'
                             });
                         }
+                        
                     });
+                    $('.btn-close, .btn-secondary').on('click', function () {
+                $('#viewModal').modal('hide');
+            });
                 });
 
 
