@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\Autor_Model;
 use CodeIgniter\Controller;
 
+use PhpOffice\PhpWord\TemplateProcessor;
 class Form_Controller extends Controller {
 
     public function index() {
@@ -12,33 +13,100 @@ class Form_Controller extends Controller {
     }
 
     public function baixardocumento() {
-        $nome = $this->request->getPost('nome');
+        $matricula = $this->request->getPost('matricula');
         $model = new Autor_Model();
-        $usuario = $model->verificarUsuario($nome);
-        if ($usuario->autor_statusdocumentos != "NULL") {
-            $protocolo = $model->getProtocolo($nome);
-            return view('FormAddDados', ['protocolo' => $protocolo, 'nome' => $nome]);
-        }
-        return view("FormAddDados", ['nome' => $nome]);
+        // dd($usuario);
+        $protocolo = $model->getProtocolo($matricula);
+        return view('FormUploadImage', ['matricula' => $matricula, 'nome' => $protocolo->protocol_nome, 'ehupdate' => isset($protocolo) ? 'sim' : 'nao']);
+    }
+
+    public function generateProcuracao()
+    {
+        $matricula = $this->request->getGet('matricula');
+        $model = new Autor_Model();
+        $protocolo = $model->getProtocolo($matricula);
+        // dd($protocolo);
+        // Caminho para o template do arquivo Word
+        $templatePath = FCPATH . 'template/procuracao_e_declaracao_hipossuficiencia.docx';
+        // Caminho para salvar o arquivo gerado
+        $savePath = WRITEPATH . 'uploads/' . date('YmdHis') . '.docx';
+
+        // Crie uma nova instância do TemplateProcessor
+        $templateProcessor = new TemplateProcessor($templatePath);
+
+        // Substitua as variáveis no template
+        setlocale(LC_TIME, 'pt_BR.UTF-8', 'pt_BR', 'pt_BR.utf8');
+
+        // Substitua as variáveis no template com os dados do usuário
+        $templateProcessor->setValue('nome', $protocolo->protocol_nome);
+        $templateProcessor->setValue('estado_civil', $protocolo->protocol_estadocivil);
+        $templateProcessor->setValue('cargo', $protocolo->protocol_situacaoprofissional);
+        $templateProcessor->setValue('matricula', $protocolo->protocol_matricula);
+        $templateProcessor->setValue('cpf', $protocolo->protocol_cpf);
+        $templateProcessor->setValue('rg', $protocolo->protocol_identidade);
+        $templateProcessor->setValue('orgao_expedidor', $protocolo->protocol_orgaoexped);
+        $templateProcessor->setValue('endereco', $protocolo->protocol_endereco);
+        $templateProcessor->setValue('numero', $protocolo->protocol_numero);
+        $templateProcessor->setValue('complemento', $protocolo->protocol_complemento ?? ''); // Verifica se é null
+        $templateProcessor->setValue('bairro', $protocolo->protocol_bairro);
+        $templateProcessor->setValue('cidade', $protocolo->protocol_cidade);
+        $templateProcessor->setValue('uf', $protocolo->protocol_estado);
+        $templateProcessor->setValue('cep', $protocolo->protocol_cep);
+        $templateProcessor->setValue('telefone', $protocolo->protocol_telefone);
+        $templateProcessor->setValue('email', $protocolo->protocol_email);
+    
+        // Formate a data em português brasileiro
+        $dataFormatada = $this->formatarDataEmPortugues(date('Y-m-d'));
+    $templateProcessor->setValue('data', $dataFormatada);
+        // Salve o arquivo gerado
+        $templateProcessor->saveAs($savePath);
+
+        return $this->response->download($savePath, null)->setFileName('procuracao_e_declaracao_hipossuficiencia.docx');
+    }
+
+    private function formatarDataEmPortugues($data) {
+        $meses = [
+            '01' => 'janeiro',
+            '02' => 'fevereiro',
+            '03' => 'março',
+            '04' => 'abril',
+            '05' => 'maio',
+            '06' => 'junho',
+            '07' => 'julho',
+            '08' => 'agosto',
+            '09' => 'setembro',
+            '10' => 'outubro',
+            '11' => 'novembro',
+            '12' => 'dezembro'
+        ];
+    
+        $dia = date('d', strtotime($data));
+        $mes = $meses[date('m', strtotime($data))];
+        $ano = date('Y', strtotime($data));
+    
+        return " {$dia} de {$mes} de {$ano}";
     }
 
     public function verificar()
     {
-        $nome = $this->request->getPost('nome');
+        $matricula = $this->request->getPost('matricula');
         $model = new Autor_Model();
-        $usuario = $model->verificarUsuario($nome);
+        $usuario = $model->verificarUsuario($matricula);
         if (!$usuario) {
             return view('FormConsultaNome', ['erro' => 'Prezado(a), 
-            O seu nome não consta na listagem dos autores do processo de 1/3 de férias. 
+            A sua matricula não consta na listagem dos autores do processo de 1/3 de férias. 
             Favor entrar em contato com o departamento jurídico do Sindicato pelo telefone (99)9999-9999 falar com Xxxx']);
         } else if ($usuario->autor_statusdocumentos != "NULL") {
-            return view("FormBaixarDocumento", ['nome' => $nome]);
+            $protocolo = $model->getProtocolo($matricula);
+            // dd($protocolo);
+            return view('FormAddDados', ['protocolo' => $protocolo, 'nome' => $usuario->autor_nome,'matricula' => $matricula]);
         }
-        return view('FormBaixarDocumento', ['nome' => $nome]);
+        return view("FormAddDados", ['nome' => $usuario->autor_nome, 'matricula' => $matricula]);
     }
 
     public function salvardocumento()
     {   
+        $matricula = $this->request->getPost('matricula');
         $nome = $this->request->getPost('nome');
         $email = $this->request->getPost('email');
         $telefone = $this->request->getPost('telefone');
@@ -54,23 +122,28 @@ class Form_Controller extends Controller {
         $rg = $this->request->getPost('rg');
         $exp = $this->request->getPost('exp');
         $civil = $this->request->getPost('civil');
+        $banco = $this->request->getPost('banco');
+        $agencia = $this->request->getPost('agencia');
+        $operacao = $this->request->getPost('operacao');
+        $contadigito = $this->request->getPost('contadigito');
 
         $ehupdate = $this->request->getPost('ehupdate');
 
         if($ehupdate == "sim"){
             $ehupdate = true;
             $model = new Autor_Model();
-            $model->atualizarProtocolo($nome, $email, $telefone, $cpf, $cep, $logradouro, $cidade, $bairro, $estado, $complemento, $ip,$rg,$exp,$civil,$numero);
+            $model->atualizarProtocolo($matricula,$nome, $email, $telefone, $cpf, $cep, $logradouro, $cidade, $bairro, $estado, $complemento, $ip,$rg,$exp,$civil,$numero,$banco,$agencia,$operacao,$contadigito);
         } else {
             $ehupdate = null;
             $model = new Autor_Model();
-            $model->criarProtocolo($nome, $email, $telefone, $cpf, $cep, $logradouro, $cidade, $bairro, $estado, $complemento, $ip,$rg,$exp,$civil,$numero);    
+            $model->criarProtocolo($matricula,$nome, $email, $telefone, $cpf, $cep, $logradouro, $cidade, $bairro, $estado, $complemento, $ip,$rg,$exp,$civil,$numero,$banco,$agencia,$operacao,$contadigito);    
         }
        
         $model = new Autor_Model();
-        $matricula = $model->getMatricula($nome);
+        $usuario = $model->verificarUsuario($matricula);
+        $matricula = $usuario->autor_matricula;
 
-        return view('FormUploadImage', ['matricula' => $matricula, 'nome' => $nome, 'ehupdate' => $ehupdate]);
+        return view('FormBaixarDocumento', ['matricula' => $matricula]);
     }
 
     public function salvarimagem()

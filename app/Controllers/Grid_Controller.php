@@ -21,11 +21,11 @@ class Grid_Controller extends Controller
 
     public function atualizarStatus()
     {
-        $authorName = $this->request->getPost('author_name');
+        $authorMatricula = $this->request->getPost('author_matricula');
         $newStatus = $this->request->getPost('new_status');
         //dd($authorName,$newStatus);
         $model = new Grid_Model();
-        $result = $model->updateStatus($authorName, $newStatus);
+        $result = $model->updateStatus($authorMatricula, $newStatus);
 
         if ($result) {
             return $this->response->setJSON(['success' => true]);
@@ -192,6 +192,10 @@ class Grid_Controller extends Controller
         $sheet->setCellValue('U1', 'Ip');
         $sheet->setCellValue('V1', 'Complemento');
         $sheet->setCellValue('W1', 'Codigo');
+        $sheet->setCellValue('X1', 'Banco');
+        $sheet->setCellValue('Y1', 'Agência');
+        $sheet->setCellValue('Z1', 'Operação');
+        $sheet->setCellValue('AA1', 'Conta com dígito');
 
 
         // Adicionar os dados
@@ -220,6 +224,10 @@ class Grid_Controller extends Controller
             $sheet->setCellValue('U' . $row, $protocolo['protocol_ipmaquina']);
             $sheet->setCellValue('V' . $row, $protocolo['protocol_complemento']);
             $sheet->setCellValue('W' . $row, $protocolo['protocol_codigo']);
+            $sheet->setCellValue('X' . $row, $protocolo['protocol_banco']);
+            $sheet->setCellValue('Y' . $row, $protocolo['protocol_agencia']);
+            $sheet->setCellValue('Z' . $row, $protocolo['protocol_operacao']);
+            $sheet->setCellValue('AA' . $row, $protocolo['protocol_contadigito']);
 
 
             $row++;

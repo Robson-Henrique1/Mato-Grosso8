@@ -263,7 +263,7 @@
                         <td><?= $protocolo['protocol_cpf'] ?></td>
                         <td><?= $protocolo['protocol_situacaoprofissional'] ?></td>
                         <td>
-                            <select class="form-select form-select-sm status-dropdown" data-author-name="<?= $protocolo['protocol_nome'] ?>">
+                            <select class="form-select form-select-sm status-dropdown" data-author-matricula="<?= $protocolo['protocol_matricula'] ?>">
                                 <option value="RECEBIDO" <?= $protocolo['autor_statusdocumentos'] == 'RECEBIDO' ? 'selected' : '' ?>>Recebido</option>
                                 <option value="PENDENTE" <?= $protocolo['autor_statusdocumentos'] == 'PENDENTE' ? 'selected' : '' ?>>Pendente</option>
                                 <option value="BAIXADO" <?= $protocolo['autor_statusdocumentos'] == 'BAIXADO' ? 'selected' : '' ?>>Baixado</option>
@@ -376,14 +376,14 @@
 
                 // Evento para capturar a mudança no valor do dropdown
                 $('.status-dropdown').change(function() {
-                    var authorName = $(this).data('author-name');
+                    var authorMatricula = $(this).data('author-matricula');
                     var newStatus = $(this).val();
 
                     $.ajax({
                         type: 'POST',
                         url: '<?= base_url('grid/atualizar_status') ?>',
                         data: {
-                            author_name: authorName,
+                            author_matricula: authorMatricula,
                             new_status: newStatus
                         },
                         success: function(response) {
@@ -588,9 +588,28 @@
                                 displayKey = 'Codigo';
                                 break;
 
+                                case 'protocol_banco':
+                                displayKey = 'Banco';
+                                break;
+
+                                case 'protocol_agencia':
+                                displayKey = 'Agência';
+                                break;
+
+                                case 'protocol_operacao':
+                                displayKey = 'Operação';
+                                break;
+
+                                case 'protocol_contadigito':
+                                displayKey = 'Conta com dígito';
+                                break;
+
                             default:
                                 displayKey = key;
                                 break;
+                        }
+                        if(!value){
+                            value = 'Vazio'
                         }
                         content += '<tr><th>' + displayKey + '</th><td>' + value + '</td></tr>';
                     }

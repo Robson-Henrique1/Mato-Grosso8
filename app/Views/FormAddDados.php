@@ -100,6 +100,7 @@
 <div class="container">
     <h2>Formulário</h2>
     <form id="form" action="<?= base_url('salvardocumento') ?>" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="matricula" id="matricula" value="<?php echo $matricula; ?>">
         <div class="form-group">
             <label for="nome">Nome:*</label>
             <input type="text" class="form-control" id="nome" name="nome" value="<?= isset($protocolo) ? $protocolo->protocol_nome : $nome; ?>" required readonly>
@@ -165,6 +166,22 @@
                 <input type="text" class="form-control" id="estado" name="estado" value="<?= isset($protocolo) ? $protocolo->protocol_estado : ''; ?>" required>
             </div>
         </div>
+        <div class="form-group">
+                <label for="estado">Banco:*</label>
+                <input type="text" class="form-control" id="banco" name="banco" value="<?= isset($protocolo) ? $protocolo->protocol_banco : ''; ?>" required>
+            </div>
+            <div class="form-group">
+                <label for="estado">Agência:*</label>
+                <input type="text" class="form-control" id="agencia" name="agencia" value="<?= isset($protocolo) ? $protocolo->protocol_agencia : ''; ?>" required>
+            </div>
+            <div class="form-group">
+                <label for="estado">Operação:*</label>
+                <input type="text" class="form-control" id="operacao" name="operacao" value="<?= isset($protocolo) ? $protocolo->protocol_operacao : ''; ?>" required>
+            </div>
+            <div class="form-group">
+                <label for="estado">Conta com dígito:*</label>
+                <input type="text" class="form-control" id="contadigito" name="contadigito" value="<?= isset($protocolo) ? $protocolo->protocol_contadigito : ''; ?>" required>
+            </div>
         <div class="form-group form-check">
             <input type="checkbox" class="form-check-input" id="declaracao" name="declaracao" required>
             <label class="form-check-label" for="declaracao">Declaro que não possuo processo em curso com a cobrança de 1/3 de férias e caso haja a entidade, seja condenada por litigância as despesa correrão por conta.</label>

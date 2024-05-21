@@ -10,7 +10,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
-
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -116,19 +115,26 @@
         <form id="form" action="<?= base_url('baixardocumento'); ?>" method="post" enctype="multipart/form-data">
             <h2>Baixe a ficha de procuração, preencha-a para uso posterior</h2>
             <div style="text-align: center;">
-                <a id="btn-download-2" class="download-button" href="../public/procuracao_e_declaracao_hipossuficiencia.pdf" download>
+                <a id="btn-download-2" class="download-button" href="#" download>
                     <i class="fas fa-file-pdf"></i> Baixar Ficha de Procuração
                 </a>
             </div>
             <br>
-            <p> <input type="hidden" name="nome" id="nome" value="<?php echo $nome; ?>"></p>
+            <input type="hidden" name="matricula" id="matricula" value="<?php echo $matricula; ?>">
             <button type="submit" class="btn btn-primary btn-block" disabled>Avançar</button>
         </form>
 
-
         <script>
-            document.getElementById('btn-download-2').addEventListener('click', function() {
-                document.querySelector('button[type="submit"]').removeAttribute('disabled');
+            document.getElementById('btn-download-2').addEventListener('click', function(event) {
+                var matricula = document.getElementById('matricula').value;
+                if (matricula) {
+                    var downloadLink = '<?= base_url('generate-procuracao') ?>?matricula=' + matricula;
+                    this.href = downloadLink;
+                    document.querySelector('button[type="submit"]').removeAttribute('disabled');
+                } else {
+                    event.preventDefault();
+                    alert('Matrícula não encontrada.');
+                }
             });
         </script>
     </div>

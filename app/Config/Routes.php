@@ -50,7 +50,7 @@ $routes->post('baixardocumento', 'Form_Controller::baixardocumento',['as' => 'ba
 $routes->post('verificar', 'Form_Controller::verificar',['as' => 'verificar']);
 $routes->post('salvardocumento', 'Form_Controller::salvardocumento',['as' => 'salvardocumento']);
 $routes->post('salvarimagem', 'Form_Controller::salvarimagem',['as' => 'salvarimagem']);
-
+$routes->get('generate-procuracao', 'Form_Controller::generateProcuracao');
 
 /**
  * --------------------------------------------------------------------

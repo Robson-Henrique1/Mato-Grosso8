@@ -13,7 +13,7 @@ class Grid_Model extends Model {
 
     public function getAllProtocolos() {
         return $this->select('protocolosrecebidos.*, autores.autor_statusdocumentos')
-                    ->join('autores', 'autores.autor_nome = protocolosrecebidos.protocol_nome')
+                    ->join('autores', 'autores.autor_matricula = protocolosrecebidos.protocol_matricula')
                     ->findAll();
      }
 
@@ -24,7 +24,7 @@ class Grid_Model extends Model {
     // }
 
 
-    public function updateStatus($authorName, $newStatus)
+    public function updateStatus($authorMatricula, $newStatus)
     {
         // Atualiza a tabela autores onde o autor_nome corresponde ao $authorName
         $data = [
@@ -32,9 +32,8 @@ class Grid_Model extends Model {
         ];
 
         $this->db->table('autores')
-            ->where('autor_nome', $authorName)
+            ->where('autor_matricula', $authorMatricula)
             ->update($data);
-
         return $this->db->affectedRows() > 0;
     }
 

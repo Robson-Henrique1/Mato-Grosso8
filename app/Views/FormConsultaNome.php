@@ -12,7 +12,7 @@
     padding: 0;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start; /* Alinha os itens ao topo */
     min-height: 100vh;
     background-color: #f3f4f6;
   }
@@ -24,10 +24,12 @@
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     max-width: 600px; /* Limitando a largura para evitar quebra */
     width: 100%; /* Garantindo que o container ocupe a largura disponível */
+    margin-top: 20px; /* Ajuste de margem superior para posicionar o container */
   }
   h1 {
     color: #333;
     margin-bottom: 20px;
+    margin-top: 0; /* Garantindo que não há margem superior */
   }
   p {
     color: #666;
@@ -98,7 +100,7 @@
   <div class="box">
     <h2 style="font-size: 24px;">Consulte aqui</h2>
     <form id="consultForm" action="<?= base_url('verificar') ?>" method="post">
-      <input type="text" id="nome" name="nome" placeholder="Digite seu nome">
+      <input type="text" id="matricula" name="matricula" placeholder="Digite sua matricula">
       <button type="submit"><i class="fas fa-search"></i> Consultar</button>
       <button type="reset"><i class="fas fa-sync-alt"></i> Limpar</button>
     </form>
