@@ -113,10 +113,14 @@
 <body>
     <div class="container">
         <form id="form" action="<?= base_url('baixardocumento'); ?>" method="post" enctype="multipart/form-data">
-            <h2>Baixe a ficha de procuração, preencha-a para uso posterior</h2>
+            <h2>Siga os passos abaixo:</h2>
+            <p>1. Baixe a procuração</p>
+            <p>2. Imprima a mesma numa impressora com tinta boa (legível)</p>
+            <p>3. Assine a procuração</p>
+            <p>4. Escanei a procuração gerando um PDF (só pode ser PDF)</p>
             <div style="text-align: center;">
                 <a id="btn-download-2" class="download-button" href="#" download>
-                    <i class="fas fa-file-pdf"></i> Baixar Ficha de Procuração
+                    <i class="fas fa-file-pdf"></i> Baixar Procuração
                 </a>
             </div>
             <br>

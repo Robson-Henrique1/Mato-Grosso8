@@ -7,6 +7,8 @@
         }
     },
     "require": {
-        "phpoffice/phpspreadsheet": "^2.1"
+        "phpoffice/phpspreadsheet": "^2.1",
+        "phpoffice/phpword": "^1.2",
+        "dompdf/dompdf": "^3.0"
     }
 }

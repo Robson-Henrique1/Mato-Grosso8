@@ -19,12 +19,12 @@
   .container {
     text-align: center;
     background-color: #fff;
-    padding: 40px;
+    padding: 10px;
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     max-width: 600px; /* Limitando a largura para evitar quebra */
     width: 100%; /* Garantindo que o container ocupe a largura disponível */
-    margin-top: 20px; /* Ajuste de margem superior para posicionar o container */
+    margin-top: 10px; /* Ajuste de margem superior para posicionar o container */
   }
   h1 {
     color: #333;
@@ -43,11 +43,11 @@
   }
   .video-container iframe {
     width: 100%;
-    height: 300px;
+    height: 250px;
   }
   .box {
     background-color: #f0f0f0;
-    padding: 20px;
+    padding: 10px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   }

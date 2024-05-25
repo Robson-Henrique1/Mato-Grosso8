@@ -101,8 +101,8 @@
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit">Login</button>
         </form>
-        <?php if (isset($error)) : ?>
-            <p class="error-message"><?= $error ?></p>
+        <?php if (isset($error_message)) : ?>
+            <p class="error-message"><?= $error_message ?></p>
         <?php endif; ?>
     </div>
 </body>

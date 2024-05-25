@@ -32,7 +32,7 @@ $routes->setAutoRoute(true);
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
 /** @var RouteCollectionInterface $routes */
-$routes->group('', ['filters' => 'auth'], function ($routes) {
+$routes->group('', ['filter' => 'auth'], function ($routes) {
 	$routes->get('login/sucesso', 'Grid_Controller::index');
 	$routes->get('login/logout', 'Login_Controller::logout');
 	$routes->post('grid/atualizar_status', 'Grid_Controller::atualizarStatus');
